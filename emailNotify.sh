@@ -3,17 +3,13 @@
 # Wait for 60 seconds to ensure the system is fully up
 sleep 60
 
-# Get the hostname and IP address
-IP=$(hostname -I | awk '{print $1}')
-HOSTNAME=$(hostname)
+# Get the external IP address using 'ip' command
+IP=$(ip -4 route get 1.1.1.1 | awk '{print $7}')
 
-# Create the email content
-echo "$HOSTNAME is online. IP address: $IP" > /tmp/email.txt
-echo >> /tmp/email.txt
-date >> /tmp/email.txt
+# Create the email with a subject header and send it using msmtp
+{
+    echo "Subject: IP Address"
+    echo ""
+    echo "$IP"
+} | msmtp diego.estrada@utexas.edu
 
-# Send the email
-mail -s "$HOSTNAME online" diego.estrada@utexas.edu < /tmp/email.txt
-
-# Clean up
-rm /tmp/email.txt
